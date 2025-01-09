@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Artem Image Service</title>
+  </head>
+  <body>
+    <style>
+      body {
+        margin: 1;
+        padding: 0;
+        font-family: Arial, sans-serif;
+      }
+    </style>
+    <h2>Artem Image Service</h2>
+    <div>
+      <input type="file" id="file" />
+    </div>
+
+    <div
+      id="images"
+      style="display: flex; flex-direction: row; gap: 10px"
+    ></div>
+  </body>
+
+  <script>
+    const images = document.getElementById('images');
+
+    const fetchImages = async () => {
+      const response = await fetch('/allImages', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const result = await response.json();
+      result.allFiles.forEach((image) => {
+        const div = document.createElement('div');
+        const img = document.createElement('img');
+        const a = document.createElement('a');
+        const aDownload = document.createElement('a');
+        const button = document.createElement('button');
+        img.src = image.url + '?w=100&h=100&q=50';
+        img.style.width = '100px';
+        img.style.height = '100px';
+        a.innerHTML = 'img url';
+        a.href = image.url;
+        aDownload.innerHTML = 'Download';
+        aDownload.href = image.url;
+        aDownload.download = image.url;
+        button.innerHTML = 'Delete';
+        button.onclick = async () => {
+          const response = await fetch(
+            `/deleteImage/${image.url.split('/').slice(4).join('/')}`,
+            {
+              method: 'DELETE',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            },
+          );
+          const result = await response.json();
+          if (result.status === 200) {
+            div.remove();
+            window.location.reload();
+          }
+        };
+        div.appendChild(img);
+        div.appendChild(a);
+        div.appendChild(aDownload);
+        div.appendChild(button);
+        div.style.display = 'flex';
+        div.style.flexDirection = 'column';
+        div.style.gap = '10px';
+        div.style.alignItems = 'center';
+        div.style.border = '1px solid black';
+        images.appendChild(div);
+      });
+    };
+    fetchImages();
+
+    const file = document.getElementById('file');
+    file.addEventListener('change', async (e) => {
+      const formData = new FormData();
+      formData.append('file', e.target.files[0]);
+      try {
+        const response = await fetch('/upload', {
+          method: 'POST',
+          body: formData,
+        });
+        const result = await response.json();
+        window.location.reload();
+      } catch (error) {
+        console.log(error);
+      }
+    });
+  </script>
+</html>

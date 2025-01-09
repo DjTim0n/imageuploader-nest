@@ -1,5 +1,8 @@
 import {
   Controller,
+  Delete,
+  Get,
+  Param,
   Post,
   UploadedFile,
   UseInterceptors,
@@ -23,5 +26,14 @@ export class AppController {
     return {
       url: `${uri}/images/${fileName}`,
     };
+  }
+  @Get('allImages')
+  getImages() {
+    return this.appService.getImages();
+  }
+
+  @Delete('deleteImage/:fileName')
+  deleteImage(@Param('fileName') fileName: string) {
+    return this.appService.deleteImage(fileName);
   }
 }
