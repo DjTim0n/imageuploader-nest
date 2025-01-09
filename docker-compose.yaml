@@ -9,3 +9,5 @@ services:
     restart: always
     ports:
       - "9980:3000"
+    volumes:
+      - ./uploads:/app/uploads
