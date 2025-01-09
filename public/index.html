@@ -15,6 +15,9 @@
     </style>
     <h2>Artem Image Service</h2>
     <div>
+      <p>Занято место: <span id="usedSpace"></span></p>
+    </div>
+    <div>
       <input type="file" id="file" />
     </div>
 
@@ -26,7 +29,7 @@
 
   <script>
     const images = document.getElementById('images');
-
+    const usedSpace = document.getElementById('usedSpace');
     const fetchImages = async () => {
       const response = await fetch('/allImages', {
         method: 'GET',
@@ -34,14 +37,15 @@
           'Content-Type': 'application/json',
         },
       });
-
       const result = await response.json();
+      usedSpace.innerHTML = result.totalSize;
       result.allFiles.forEach((image) => {
         const div = document.createElement('div');
         const img = document.createElement('img');
         const a = document.createElement('a');
         const aDownload = document.createElement('a');
         const button = document.createElement('button');
+        const p = document.createElement('p');
         img.src = image.url + '?w=100&h=100&q=50';
         img.style.width = '100px';
         img.style.height = '100px';
@@ -50,6 +54,7 @@
         aDownload.innerHTML = 'Download';
         aDownload.href = image.url;
         aDownload.download = image.url;
+        p.innerHTML = `size: ${image.sizeKB.slice('.', 4)} KB`;
         button.innerHTML = 'Delete';
         button.onclick = async () => {
           const response = await fetch(
@@ -70,6 +75,7 @@
         div.appendChild(img);
         div.appendChild(a);
         div.appendChild(aDownload);
+        div.appendChild(p);
         div.appendChild(button);
         div.style.display = 'flex';
         div.style.flexDirection = 'column';
